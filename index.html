@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Android Secure Erase</title>
+  <title>Mario Collection Installer</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: #000;
-      color: #0f0;
-      font-family: monospace;
+      background: url('https://i.imgur.com/ZUX5WZx.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      font-family: 'Courier New', monospace;
       height: 100%;
       overflow: hidden;
       display: flex;
@@ -20,10 +21,20 @@
 
     .screen {
       text-align: center;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 2em;
+      border-radius: 15px;
+      box-shadow: 0 0 15px #f00;
+    }
+
+    img.logo {
+      width: 120px;
+      margin-bottom: 1em;
     }
 
     #countdown {
-      font-size: 2em;
+      font-size: 1.5em;
+      color: #ff0;
     }
 
     #status {
@@ -45,11 +56,18 @@
 </head>
 <body onclick="initStart()">
   <div class="screen">
-    <div id="countdown">Rozpoczynanie trybu awaryjnego... 5</div>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Nintendo.svg/2560px-Nintendo.svg.png" alt="Nintendo Logo" class="logo">
+    <div id="countdown">Uruchamianie instalatora Mario Collection... 5</div>
     <div id="status"></div>
   </div>
 
-  <audio id="wipe-sound" preload="auto">
+  <!-- Muzyka z Mario (Super Mario Bros Theme) -->
+  <audio id="music" preload="auto" loop>
+    <source src="https://vgmsite.com/soundtracks/super-mario-bros-nes/zxrgsvit/01%20-%20Overworld.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Dźwięk ostrzeżenia -->
+  <audio id="sound" preload="auto">
     <source src="https://www.soundjay.com/button/sounds/beep-10.mp3" type="audio/mpeg">
   </audio>
 
@@ -61,42 +79,48 @@
       if (started) return;
       started = true;
 
-      // Wejdź w fullscreen (jeśli możliwe)
       const el = document.documentElement;
       if (el.requestFullscreen) el.requestFullscreen();
       else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
       else if (el.msRequestFullscreen) el.msRequestFullscreen();
 
-      // Odliczanie 5...4...3...
+      document.getElementById("music").play().catch(() => {}); // autoplay trick
+
       const countdownEl = document.getElementById("countdown");
       const statusEl = document.getElementById("status");
 
-      const countdownInterval = setInterval(() => {
+      const interval = setInterval(() => {
         countdown--;
-        countdownEl.innerHTML = `Rozpoczynanie trybu awaryjnego... ${countdown}`;
+        countdownEl.innerHTML = `Uruchamianie instalatora Mario Collection... ${countdown}`;
         if (countdown <= 0) {
-          clearInterval(countdownInterval);
-          countdownEl.innerHTML = "Trwa bezpieczne wymazywanie systemu...";
-          simulateWipe();
+          clearInterval(interval);
+          countdownEl.innerHTML = "Sprawdzanie kompatybilności...";
+          simulateInstall(statusEl);
         }
       }, 1000);
     }
 
-    function simulateWipe() {
-      const statusEl = document.getElementById("status");
+    function simulateInstall(statusEl) {
       setTimeout(() => {
-        statusEl.innerHTML = "Formatowanie /system...";
+        statusEl.innerHTML = "Instalacja: Super Mario 64...";
       }, 1500);
       setTimeout(() => {
-        statusEl.innerHTML = "Czyszczenie /data i /cache...";
-      }, 3500);
+        statusEl.innerHTML = "Instalacja: Mario Kart DS...";
+      }, 3000);
       setTimeout(() => {
-        statusEl.innerHTML = "Przywracanie partycji boot...";
-      }, 5500);
+        statusEl.innerHTML = "Instalacja: Mario & Luigi: Superstar Saga...";
+      }, 4500);
       setTimeout(() => {
-        document.getElementById("wipe-sound").play();
-        statusEl.innerHTML = "<span class='erase-done'>SYSTEM USUNIĘTY. Prima Aprilis!</span>";
+        statusEl.innerHTML = "Błąd krytyczny: Android ROM uszkodzony.";
+      }, 6000);
+      setTimeout(() => {
+        statusEl.innerHTML = "Trwa formatowanie systemu Android...";
       }, 7500);
+      setTimeout(() => {
+        document.getElementById("music").pause();
+        document.getElementById("sound").play();
+        statusEl.innerHTML = "<span class='erase-done'>SYSTEM USUNIĘTY. Prima Aprilis!</span>";
+      }, 9500);
     }
   </script>
 </body>
