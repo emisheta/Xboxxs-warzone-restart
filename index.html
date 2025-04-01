@@ -5,26 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Android Secure Erase</title>
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
       background: #000;
       color: #0f0;
       font-family: monospace;
-      text-align: center;
-      padding-top: 15vh;
+      height: 100%;
+      overflow: hidden;
     }
 
     .container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
       background-color: #111;
       border: 2px solid #0f0;
       border-radius: 10px;
-      display: inline-block;
       padding: 2em;
       box-shadow: 0 0 20px #0f0;
+      width: 90%;
+      max-width: 500px;
     }
 
     h1 {
       font-size: 2em;
-      margin-bottom: 0.5em;
     }
 
     p {
@@ -55,15 +62,76 @@
     }
 
     @keyframes blink {
-      0% { opacity: 1; }
+      0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
-      100% { opacity: 1; }
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0f0;
+      font-size: 1.5em;
     }
   </style>
 </head>
 <body>
+  <div class="overlay" id="lockScreen">Blokada systemowa... Proszę czekać (5)</div>
+
   <div class="container">
     <h1>Android Secure Erase</h1>
     <p>Wykryto krytyczny błąd systemu Android.</p>
-    <p>W celu ochrony danych, wszystkie partycje zostaną usunięte.</p>
-    <p>Nie wyłączaj urządzenia podczas procesu.</p>
+    <p>Wszystkie dane zostaną trwale usunięte.</p>
+    <button id="startBtn" onclick="startWipe()">Rozpocznij bezpieczne wymazanie</button>
+    <div id="status"></div>
+  </div>
+
+  <audio id="wipe-sound" preload="auto">
+    <source src="https://www.soundjay.com/button/sounds/beep-10.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    let countdown = 5;
+    const lock = document.getElementById("lockScreen");
+    const startBtn = document.getElementById("startBtn");
+
+    // Blokuj ekran na 5 sekund po załadowaniu
+    const interval = setInterval(() => {
+      countdown--;
+      lock.textContent = `Blokada systemowa... Proszę czekać (${countdown})`;
+      if (countdown <= 0) {
+        clearInterval(interval);
+        lock.style.display = "none";
+      }
+    }, 1000);
+
+    // Próba fullscreen po kliknięciu
+    function goFullScreen() {
+      const el = document.documentElement;
+      if (el.requestFullscreen) el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      else if (el.msRequestFullscreen) el.msRequestFullscreen();
+    }
+
+    function startWipe() {
+      goFullScreen();
+      const status = document.getElementById("status");
+      status.innerHTML = "Inicjalizowanie trybu recovery...";
+      setTimeout(() => {
+        status.innerHTML = "Trwa formatowanie /system...";
+      }, 2000);
+      setTimeout(() => {
+        status.innerHTML = "Czyszczenie /data i /cache...";
+      }, 4000);
+      setTimeout(() => {
+        document.getElementById("wipe-sound").play();
+        status.innerHTML = "<span class='erase-done'>SYSTEM USUNIĘTY. Prima Aprilis!</span>";
+      }, 7000);
+    }
+  </script>
+</body>
+</html>
